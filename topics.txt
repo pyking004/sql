@@ -1,0 +1,18 @@
+datatypes
+ddl
+dml
+drl
+dcl
+tcl
+group functions
+clauses
+constraints
+setoperators
+joins
+==============================================================>>>>
+subqueries
+views
+
+
+
+

@@ -1,0 +1,137 @@
+DCL: DATA CONTROL LANGUAGE:
+===========================
+It is used to control the data from one user to another user.
+
+GRANT  ,  REVOKE
+
+alter user system identified by Oracle1234 account unlock;
+
+Grant: 
+======
+It is used to provide privileges from one user to another user
+
+syntax:
+=======
+	grant <privileges> on <object> to <users>;
+
+revoke: It is used to cancel  already given privileges.
+======
+
+syntax:
+=======
+	revoke <privileges> on <object> from <users>;
+
+
+Note:
+====
+*to practice DCL we required more than one user
+
+to see all the users in database
+================================
+sql>select * from all_users;
+
+How to create new users
+=======================
+step1: login with admin account as below
+
+user name : system
+password  : Oracle1234 ( At the time of installation provided password)
+
+sql>show user
+user is "system"
+
+step2: create new user with below statement
+
+sql>create user user1 identified by tiger;
+sql>grant connect,resource,unlimited tablespace to user1;
+
+sql>create user user2 identified by tiger;
+sql>grant connect,resource,unlimited tablespace to user2;
+
+
+Practice:
+=========
+sql>conn
+user name : scott
+password  : tiger
+connected..
+sql>show user
+user is scott..
+sql>select * from emp;
+--	--	--	--
+--	--	--	--
+--	--	--	--
+sql>connect
+user name : user1
+password  : tiger
+connected...
+
+sql>show user
+user is "USER1"
+sql>select * from emp;
+no data
+sql>select * from scott.emp;
+no table or view does not exist.
+sql>conn
+user name : scott
+password  : tiger
+connected....
+sql>show user
+user is scott
+sql>grant select on emp to user1;
+grant succeeded...
+sql>conn user1@orcl/tiger
+connected...
+sql>show user
+user is user1
+sql>select * from scott.emp;
+----	----	----
+----	----	----
+----	----	----
+sql>delete from scott.emp;
+insufficient privilege
+
+sql>grant select on scott.emp to user2;
+insufficient privilege
+sql>conn scott/tiger
+connected..
+sql>show user
+user is scott.
+sql>revoke select on emp from user1;
+revoked succeeded..
+
+sql>grant select on emp to user1 with grant option;
+granted succeeded..
+sql>conn user1/tiger
+connected...
+sql>show user
+user is user1
+sql>select * from scott.emp;
+----	----	----
+----	----	----
+----	----	----
+sql>grant select on scott.emp to user2;
+grant succeeded.
+sql>conn user2/tiger
+connected..
+sql>show user
+user is user2..
+sql>select * from scott.emp;
+----	----	----
+----	----	----
+----	----	----
+sql>conn scott/tiger
+connected..
+sql>show user
+user is scott..
+sql>revoke select on emp from user1;
+revoked..
+sql>conn user2/tiger
+connected..
+sql>show user
+user is usr2
+sql>select * from scott.emp;
+no table or view does not exist.
+
+
+

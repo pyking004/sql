@@ -1,0 +1,254 @@
+Transaction Control Language:
+=============================
+
+COMMIT , ROLLBACK , SAVEPOINT
+
+Request  => select * from emp;
+
+Response  => empdata in parcel format with security
+
+client software => sql*plus, sqlplus, sql developer, toad 
+
+server software => rdbms from oracle
+
+transaction => request and response
+
+buffer  =>  Tempararoy memoray loaction to process t.transactions
+
+commit: making t.t as p.t so that database will be effected and buffer clears
+
+rollback: cancelling all t.t from buffer and buffer will be cleared
+
+savepoint : It is used to control the rollbacking.
+
+Transaction control language:
+=============================
+Example1:
+=========
+sql>drop table t purge;
+sql>create table t(c1 number(3));
+sql>insert into t values(100);
+sql>select * from t;
+100
+sql>rollback;
+rollback completed...
+sql>select * from t;
+
+
+Example2:
+=========
+sql>select * from t;
+No Rows Selected...
+sql>insert into t values(100);
+sql>select * from t;
+100
+sql>commit;
+commit complete.
+sql>select * from t;
+100
+sql>rollback;
+rollback completed.
+sql>select * from t;
+
+
+
+
+
+Example3:
+=========
+sql>select * from t;
+100
+sql>truncate table t;
+Table truncated.
+sql>select * from t;
+No Rows Selected...
+sql>insert into t values(100);
+1 row created.
+sql>select * from t;
+100
+sql>commit;
+commit complete.
+sql>insert into t values(200);
+1 row created.
+sql>select * from t;
+100
+200
+sql>rollback;
+Rollback complete.
+sql>select * from t;
+
+
+
+
+
+
+Example4:
+=========
+sql>truncate table t;
+Table truncated.
+sql>select * from t;
+Now Rows Selected.
+sql>insert into t values(100);
+1 row created.
+sql>select * from t;
+100
+sql>commit;
+Commit complete.
+sql>rollback;
+Rollback complete.
+sql>insert into t values(200);
+1 row created.
+sql>commit;
+Commit complete.
+sql>select * from t;
+
+
+
+
+Example5:
+=========
+sql>truncate table t;
+Table truncated.
+sql>selectr * from t;
+Now Rows Selected.
+sql>insert into t values(100);
+1 row created.
+sql>commit;
+Commit completed.
+sql>rollback;
+Rollback complete.
+sql>insert into t values(200);
+1 row created.
+sql>create table t1(c1 number(4));
+Table created.
+sql>rollback;
+Rollback complete.
+sql>select * from t;
+
+
+
+
+Example6:
+=========
+sql>drop table t purge;
+sql>create table t(c1 number(3));
+sql>insert into t values(100);
+
+close sqlplus window by pressing X button
+
+open sql*plus client window and connect with user/password
+
+sql>select * from t;
+sc
+
+Note: Improperly coming out from sqlplus editor internally "ROLLBACK" will be applied.
+
+
+
+
+Example7:
+=========
+sql>drop table t purge;
+sql>create table t(c1 number(3));
+sql>insert into t values(100);
+sql>exit
+
+open sql*plus and connect again to the t table data.
+
+sql>select * from t;
+
+Note: properly coming out from sqlplus editor by giving "EXIT" command internally "COMMIT" command will be applied.
+
+
+
+
+
+
+Example with savepoint:
+======================
+drop table t purge;
+create table t(c1 number(3));
+insert into t values(100);
+savepoint s1;
+insert into t values(200);
+savepoint s2;
+insert into t values(300);
+savepoint s3;
+insert into t values(400);
+savepoint s4;
+insert into t values(500);
+
+
+in buffer
+=========
+100
+s1
+200
+s2
+300
+s3
+400
+s4
+500
+
+sql>select * from t;
+100
+200
+300
+400
+500
+
+sql>rollback to s4;
+sql>select * from t;
+100
+200
+300
+400
+
+
+sql>rollback to s3;
+sql>select * from t;
+100
+200
+300
+
+
+Creating savepoint:
+==================
+syntax:
+=======
+	savepoint <savepointname>;
+example:
+========
+sql>savepoint s1;
+
+Notes:
+====== 
+*When you apply commit or rollback all savepoints which are  established will be cleared from Buffer.
+*Rollback to perticular savepoint will not be cleared buffer
+
+
+insert atm card
+s1
+step2
+s2
+step3
+s3
+step4
+s4
+step5
+s5
+step6
+s6
+step7
+s7
+step8 amount  =  5000    ==>  6000   = 5000 - 6000 = -1000>0 ==> rollback to s7 => invalid amount
+s8
+step9
+s9
+yes/no========>    
+
+
+
+
+
