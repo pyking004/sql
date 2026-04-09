@@ -1,0 +1,201 @@
+Clauses:
+========	
+DISTINCT , WHERE , GROUP BY , HAVING , ORDER BY
+
+Required:
+=========
+drop table emp1 purge;
+create table emp1 as select * from emp;
+insert into emp1 select * from emp where deptno=30;
+commit;
+
+
+
+Distinct:
+=========
+	It is used to eliminate the duplicate values.
+
+select deptno from emp;
+select distinct(deptno) from emp;
+select distinct(COMM) from emp;
+select distinct(deptno),job from emp;
+select distinct(deptno),job,sal from emp;
+select * from emp1;
+select distinct * from emp1;
+
+drop table emp2 purge;
+create table emp2 as select distinct * from emp1;
+
+select * from emp2;
+
+drop table emp2 purge;
+
+
+WHERE:
+======
+	It is used to filter the data from data base table with "where" clause condition.
+
+select * from emp where deptno=10;
+select empno,ename,job,sal salary,deptno from emp;
+select empno,ename,job,sal salary,deptno from emp where salary>2500;(improper usage)
+select empno,ename,job,sal,sal*0.15 as tax,deptno from emp;
+select empno,ename,job,sal,sal*0.15 as tax,deptno from emp where tax>500;(improper usage)
+select * from emp where sal=max(sal);(group functions can not used)
+
+Note:
+=====
+* where clause doesn't accept column alias.
+* where clause doesn't aceept group functions.
+
+
+Group By:
+=========
+	It is used to make groups based on similar values in the columns.
+
+select * from emp group by deptno;(wrong)
+select deptno from emp group by deptno;
+select deptno,sal from emp group by deptno;(wrong)
+select deptno,job from emp group by deptno,job;
+select deptno,sal from emp group by deptno,sal;
+
+select deptno,sum(sal),avg(sal),count(*) from emp group by deptno;
+
+select deptno,job,sum(sal),avg(sal),count(*) from emp group by deptno,job;
+
+Note:
+1. we can dispaly columns only those which are grouped with group by clause 
+2. we can display group functions along with columns which are used in group by clause.
+
+Examples
+========
+drop table emp1 purge;
+create table emp1 as select * from emp;
+insert into emp1 select * from emp where deptno=30;
+commit;
+
+select * from emp1; => 20 records
+
+select empno,ename,job,mgr,hiredate,sal,comm,deptno from emp1 group by
+empno,ename,job,mgr,hiredate,sal,comm,deptno;
+
+select empno,ename,job,mgr,hiredate,sal,comm,deptno,count(*) from emp1 group by
+empno,ename,job,mgr,hiredate,sal,comm,deptno;
+
+
+Having:
+=======
+	it is used to filter the grouped data.
+
+select empno,ename,job,mgr,hiredate,sal,comm,deptno,count(*) from emp1
+group by empno,ename,job,mgr,hiredate,sal,comm,deptno;
+
+Repeated Once only
+==================
+select empno,ename,job,mgr,hiredate,sal,comm,deptno,count(*) from emp2
+group by empno,ename,job,mgr,hiredate,sal,comm,deptno having count(*)=2;
+
+Non-Repeated Records
+====================
+select empno,ename,job,mgr,hiredate,sal,comm,deptno,count(*) from emp1
+group by empno,ename,job,mgr,hiredate,sal,comm,deptno having count(*)=1;
+
+Repeated More than once
+=======================
+select empno,ename,job,mgr,hiredate,sal,comm,deptno,count(*) from emp2
+group by empno,ename,job,mgr,hiredate,sal,comm,deptno having count(*)>1;
+
+
+select empno,ename,job,mgr,hiredate,sal,comm,deptno from emp1
+group by empno,ename,job,mgr,hiredate,sal,comm,deptno 
+having count(*)>1;(repeated records)
+
+select empno,ename,job,mgr,hiredate,sal,comm,deptno from emp1
+group by empno,ename,job,mgr,hiredate,sal,comm,deptno 
+having count(*)=1;
+(non repeated)
+
+
+select empno,ename,job,mgr,hiredate,sal,comm,deptno from emp2 group by
+empno,ename,job,mgr,hiredate,sal,comm,deptno;(unique)
+
+
+select deptno,sum(sal),avg(sal),count(*) from emp group by deptno;
+
+select deptno,sum(sal),avg(sal),count(*) from emp group by deptno having count(*)>4;
+
+select deptno,job,sum(sal),avg(sal),count(*) from emp group by deptno,job having count(*)=1;
+
+
+
+Order By:
+=========
+	It is used to display the data in ascending order or descending order.
+
+select * from emp order by sal;
+select * from emp order by sal desc;
+select * from emp order by 6;
+select * from emp order by 6 desc;
+select empno,ename,mgr,job,comm,deptno,hiredate,sal from emp order by 6 desc;
+describe emp
+select * from emp order by deptno,sal;
+select * from emp order by deptno,sal desc;
+select * from emp order by sal;
+select * from emp order by deptno desc,sal;
+select * from emp order by deptno desc,sal desc;
+
+
+clauses usage order:
+====================
+	
+where 	group by     having    order by
+		(or)
+where 	having	   group by    order by
+
+
+select deptno,job,sum(sal),avg(sal),count(*) from emp
+where sal>=1800
+group by deptno,job
+having count(*)>1
+order by deptno,sum(sal) desc;
+
+
+select deptno,job,sum(sal),avg(sal),count(*) from emp
+where sal<=1200
+group by deptno,job
+having count(*)=1
+order by deptno,sum(sal) desc;
+
+select deptno,job,sum(sal),avg(sal),count(*) from emp
+where sal>=1800
+having count(*)>1
+group by deptno, job
+order by deptno,sum(sal) desc;
+
+Rollup:
+=======
+select deptno,sum(sal),avg(sal),min(sal),count(*) from emp
+group by rollup(deptno);
+
+
+select deptno,job,sum(sal),avg(sal),min(sal),count(*) from emp
+group by rollup(deptno,job) order by deptno;
+
+cube:
+=====
+select deptno,sum(sal),avg(sal),min(sal),count(*) from emp
+group by cube(deptno);
+
+select deptno,job,sum(sal),avg(sal),min(sal),count(*) from emp
+group by cube(deptno,job) order by deptno;
+
+
+Partition by:
+=============
+select empno,ename,job,sal,dense_rank()over(order by sal desc nulls last) rank,deptno from emp;
+
+select empno,ename,job,sal,rank()over(order by sal desc nulls last) rank,deptno from emp;
+
+select empno,ename,deptno,sal,dense_rank()over(partition by deptno order by sal desc nulls last)  rank from emp;
+
+
+

@@ -1,0 +1,492 @@
+system defined Data integrity:
+=========================
+I. Entity Integrity
+	1. Primary key
+	2. unique
+II.Domain Integrity
+	3. check
+	4. not null
+III.Referential Integrity
+	5. foreign key
+
+
+syntax:
+=======
+col1_name datatype(size) constraint <constraint_name> <constraint_type>
+		(or)
+col1_name datatype(size) <constraint_type>
+
+PRIMARY KEY
+===========
+	It doesn't accept any duplicate values and null values.
+
+Example1
+========
+drop table student1 purge;
+
+create table student1
+(
+sid number(4) constraint student1_sid_pk primary key,
+sname varchar2(15),
+course varchar2(10),
+fee number(9,2)
+);
+
+sql>desc student1
+
+Note:describe table will not display any constraints which are created.
+
+SQL>insert into student1 values(101,'scott','oracle',5000);
+
+SQL>insert into student1 values(101,'smith','unix',4000);
+
+ERROR at line 1:
+ORA-00001: unique constraint (SCOTT.STUDENT_SID_PK) violated
+
+SQL>insert into student1 values(102,'smith','unix',4000);
+
+SQL>insert into student1 values(null,'scott','oracle',5000);
+
+ERROR at line 1:
+ORA-01400: cannot insert NULL into ("SCOTT"."STUDENT"."SID")
+
+Note: One table will have only one primary key on any column.
+
+
+Example2:
+=========
+drop table student2;
+
+create table student2
+(
+sid number constraint student1_sid_pk primary key,
+sname varchar2(15),
+course varchar2(10),
+fee number(7,2)
+);
+
+Note:constraint names should be unique in the entire schema.
+
+create table student2
+(
+sid number constraint student2_sid_pk primary key,
+sname varchar2(15),
+course varchar2(10),
+fee number(7,2)
+);
+
+
+create table student3
+(
+sid number constraint student3_1_sid_pk primary key,
+sname varchar2(15) constraint student3_2_sid_pk primary key,
+course varchar2(10),
+fee number(7,2)
+);
+
+
+Notes: 
+======
+*only one primary key for one table on any column.
+*when primary key is created internally one default index will be created on that column.
+*constraint names should be unique in the entire schema.
+
+UNIQUE:
+=======
+*It doesn't accept any duplicate values
+*Any number of unique constraints can be created on single table unlike primary key.
+*Unique constraint doesn't check null values.
+*so it accepts any number of null values.
+
+drop table student4;
+
+create table student4
+(
+sid number constraint student4_sid_unq unique,
+sname varchar2(15),
+course varchar2(10),
+fee number(7,2)
+);
+
+insert into student4 values(101,'scott','oracle',5000);
+insert into student4 values(102,'smith','oracle',5000);
+insert into student4 values(101,'scott','java',4500);
+
+ERROR at line 1:
+ORA-00001: unique constraint (SCOTT.STUDENT4_SID_UNQ) violated
+
+insert into student4 values(null,'scott','java',4500);
+insert into student4 values(null,'scott','java',4500);
+
+
+CHECK: Constraint
+=================
+* It is allowing you to provide your own constraint condition value.
+* It accepts only those values which are satifying the "CHECK" constraint condition value.
+
+drop table student5;
+
+create table student3
+(
+sid number,
+sname varchar2(15),
+course varchar2(10) constraint student3_course_chk check(course in ('python','react','java')),
+fee number(7,2)
+);
+
+
+insert into student5 values(101,'scott','oracle',2500);
+insert into student5 values(102,'smith','unix',1500);
+insert into student5 values(103,'scott','linux',2000);
+
+ERROR at line 1:
+ORA-02290: check constraint (SCOTT.STUDENT5_COURSE_CHK) violated
+
+
+NOT NULL
+========
+* It doesn't accept any null values.
+
+create table student4
+(
+sid number,
+sname varchar2(15) constraint student4_sname_nn not null,
+course varchar2(10) not null,
+fee number(7,2)
+);
+
+insert into student6 values(101,'smith','oracle',450);
+insert into student6 values(102,null,'unix',460);
+
+	primary key != unique + not null 
+
+
+Foreign key:
+============
+It is used to establish relationship among database tables.
+
+
+customer
+========
+accno	n(5)=> accno>=1001,no null,no duplicate=> primary key,check
+acname	v2(25) ==> no nulls  => not null
+actype	char   ==> no nulls, should be in(s,c,j) ==> not null, check
+bal	n(9,2) ==> no nulls, bal>=5000  ==>  not null , check
+
+transaction
+============
+accno 	n(5)  ==> valid account number => foreign key
+name	v2(25) ==> not null            => not null
+amount	n(9,2) ==> amount>=100,no null => check , not null
+t_id	n(8)   ==> t_id >=500001,no nulls , no duplicate  => check , not null , unique
+ 
+
+drop table customer purge;
+
+create table customer
+(
+accno number(5) 
+constraint cust_accno_pk primary key 
+constraint cust_accno_chk check(accno>=1001),
+acname varchar2(25)
+constraint cust_acname_nn not null,
+actype char
+constraint cust_actype_chk check(actype in('s','c','j')) 
+not null,
+bal number(9,2) 
+constraint cust_bal_chk check(bal>=5000) 
+not null
+);
+
+
+drop table transaction purge;
+
+create table transaction 
+(
+accno number(4) constraint trn_accno_fk references customer(accno),
+name varchar2(15) not null,
+amount number(9,2) not null,
+tid number(8) constraint trn_tid_chk check(tid>=500001)
+constraint trn_tid_unique unique
+);
+
+
+UNIQUE + NOT NULL != PRIMARY KEY(INDEX)
+
+Notes:
+======
+* we create foreign key on those table which are having some relationship.
+* In which table we are creating foreign key that is known as child table.
+* To create a foreign key we required referenced table column.
+* The referenced table is known as parent table so relationship is called parent child relationship.
+* To establish foreign key successfully referenced table column should have primary key or unique  constraint.
+* Once foreign key is established succeesfully then droping parent table is not possible.
+* if you want to drop parent table first remove foreignkey or drop child table.
+* deleting parent records not possible when you found any dependent child records in child table.
+* one child table always depends on only one parent table column
+
+
+user_constraints:
+================
+	it is system defined table which maintains all user created constraints
+
+desc user_constraints
+
+select constraint_name,constraint_type,search_condition from user_constraints where table_name='CUSTOMER';
+
+col constraint_name for a35
+col search_condition for a35
+
+select constraint_name,constraint_type,search_condition from user_constraints where table_name='TRANSACTION';
+
+constraint types:
+================= 
+c  => not null and check
+P  => primary key
+R  => foreign key
+U  => unique 
+
+
+user_cons_columns
+==================
+	It is system defined table which maintains constraints columns information 
+
+
+select t1.constraint_name,T1.CONSTRAINT_TYPE,T1.SEARCH_CONDITION,T1.TABLE_NAME,t2.column_name from user_constraints t1,user_cons_columns t2 where (t1.CONSTRAINT_NAME=t2.CONSTRAINT_NAME) AND T1.TABLE_NAME='CUSTOMER'
+
+
+NOTE:
+=====
+*constraints can not be modified can be dropped and can be created.
+
+
+DROPING THE CONSTRAINTS:
+========================
+
+syntax:
+=======
+	alter table <tablename> drop constraint <cons name>;
+
+
+Droping primary key:
+====================
+
+sql>alter table customer drop constraint cust_accno_pk;
+
+Note: primary key can not be dropped if at all any reference key is found.
+
+* first remove foreign key then primary key
+
+droping foreign key:
+====================
+sql>alter table transaction drop constraint trn_accno_fk;
+
+Now remove primarykey
+=====================
+sql>alter table customer drop constraint cust_accno_pk;
+
+
+droping unique constraint:
+==========================
+sql>alter table transaction drop constraint trn_tid_unq;
+
+
+Note: 
+=====
+*constraints can not be modified 
+*constraints can be added or dropped
+*only one constraint which can be modified that is NOT NULL
+
+modifying not null to null;
+===========================
+drop table student101 purge;
+
+create table student101
+(
+sid number(4) constraint student_sid_nn not null,
+sname varchar2(15) not null,
+course varchar2(10)
+);
+
+alter table student101 drop constraint student_sid_nn;
+
+
+adding not null constraint on existing table:
+=============================================
+alter table student add constraint student_sid_nn not null;(wrong)
+
+alter table student modify sid number(4) not null;
+
+alter table student modify sname varchar2(15) null;
+
+
+Adding constraints on existing table:
+=====================================
+
+Adding primary key :
+====================
+
+sql>alter table customer add constraint cust_accno_pk primary key(accno);
+
+
+adding foreign key:
+====================
+
+alter table transaction add constraint trn_accno_fk foreign key(accno) references customer(accno);
+
+adding unique constraint:
+=========================
+alter table transaction add constraint trn_tid_unq unique(t_id);
+
+
+customer table data:
+====================
+insert into customer values(1001,'SCOTT','s',6000);
+insert into customer values(1002,'SMITH','c',6000);
+
+sele
+transaction table data:
+=======================
+insert into transaction values(1001,'scott',400,500001);
+insert into transaction values(1001,'scott',300,500002);
+insert into transaction values(1002,'smith',600,500003);
+insert into transaction values(1002,'smith',2000,500004);
+insert into transaction values(1002,'mike',2100,500005);
+
+delete from customer where accno=10001;
+
+
+On delete cascade:
+==================
+	it is used to delete the parent records even there are child dependent records in child table.
+
+action on child:
+================
+if you delete parent records all dependent child records will be deleted.
+
+
+Droping foreign key:
+====================
+
+alter table transaction drop constraint trn_accno_fk;
+
+adding foreign key constraint with "On delete cascade"
+======================================================
+
+alter table transaction add constraint trn_accno_fk foreign key(accno) references customer(accno) on delete cascade;
+
+delete from customer where accno=10001;
+
+select * from customer;
+
+select * from transaction;
+
+On delete set null:
+===================
+	it is used to delete the parent records even there are child dependent records in child table.
+
+Action On child:
+================
+Instead of deleting child records it will fill the null values in foreign key column values.
+
+Again drop foreign key and create with "on delete set null" option
+==================================================================
+alter table transaction drop constraint trn_accno_fk;
+
+alter table transaction add constraint trn_accno_fk foreign key(accno) references customer(accno) on delete set null;
+
+select * from customer;
+
+select * from transaction;
+
+delete from customer where accno=10002;
+
+select * from customer;
+
+select * from transaction;
+
+
+Enable or Disable constraints:
+==============================
+insert into customer values(10003,'MILLER','R',7000);
+
+alter table customer disable constraint cust_actype_chk;
+
+insert into customer values(10003,'MILLER','R',7000);
+
+alter table customer enable constraint cust_actype_chk;
+
+Note: Before enable make sure that invalid data should not be there.
+
+delete from customer where actype='R';
+
+alter table customer enable constraint cust_actype_chk;
+
+
+column level constraints:
+=========================
+drop table student purge;
+
+create table student
+(
+branch_id number(4) constraint std_bid_pk primary key,
+sid number(4) constraint std_sid_unq unique,
+sname varchar2(15) not null,
+course varchar2(15)
+);
+
+
+Table level constraints:
+========================
+drop table student purge;
+
+create table student
+(
+branch_id number(4),
+sid number(4),
+sname varchar2(15) not null,
+course varchar2(15),
+constraint student_br_sid_cpk primary key(branch_id,sid)
+);
+
+Note:
+=====
+*Not null constraint we can not create at table level.
+*Applying primary key on multiple columns is known as composite primary key.
+
+purpose of the table level:
+===========================
+*To add a constraint on multiple columns
+
+
+create table student
+(
+branch_id number(4) constraint student_branch_id_pk primary key,
+sid number(4) constraint student_sid_pk primary key,
+sname varchar2(15),
+course varchar2(15)
+);
+
+students information branch wise
+===========================
+
+create table student
+(
+branch_id number(4),
+sid number(4),
+sname varchar2(15),
+course varchar2(15),
+constraint student_br_sid_cpk primary key(branch_id,sid)
+);
+
+* we can apply composite primary key on 32 columns maximum.
+
+
+insert into student values(101,1001,'scott','oracle');
+insert into student values(101,1002,'scott','oracle');
+insert into student values(102,1001,'scott','oracle');
+insert into student values(102,1002,'scott','oracle');
+insert into student values(101,null,'scott','oracle');=>wrong
+insert into student values(null,1001,'scott','oracle');=>wrong
+
+

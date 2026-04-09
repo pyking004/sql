@@ -1,0 +1,61 @@
+GROUP FUNCTIONS:
+================
+MIN	MAX	AVG	SUM	COUNT
+
+
+select min(sal),min(comm),max(sal),sum(sal),sum(comm),avg(sal),count(*),count(sal),count(comm) from emp;
+
+select sum(sal+comm) totsal from emp;(wrong)
+select sum(sal)+sum(comm) from emp;(correct)
+
+select deptno,count(deptno) from emp group by deptno;
+
+SELECT region,COUNT(country) FROM Countries GROUP BY region HAVING COUNT(country)>1;
+
+region,count(country)
+=====================
+Asia     44	
+Africa	 54
+Europe   47
+N.America23
+S.America12
+Oceania  14
+
+SELECT region,COUNT(country) FROM Countries GROUP BY region HAVING COUNT(country)>20;
+
+region,count(country)
+=====================
+Asia     44	
+Africa	 54
+Europe   47
+N.America23
+
+
+SELECT orig_airport,MAX(flying_time) FROM Flights GROUP BY orig_airport HAVING MAX(flying_time)>10;
+
+SELECT MAX(flight_date) FROM FlightAvailability;
+
+SELECT COUNT (DISTINCT flying_time), MAX (DISTINCT miles) FROM Flights
+
+SELECT COUNT (DISTINCT flying_time), MIN (DISTINCT miles) FROM Flights
+
+SELECT DISTINCT flying_time, MIN(DISTINCT miles) from Flights
+
+SELECT COUNT(DISTINCT flying_time), MIN(DISTINCT miles) from Flights
+
+SELECT MIN (flight_date) FROM FlightAvailability;
+
+SELECT AVG (DISTINCT flying_time),SUM (DISTINCT miles) FROM Flights
+
+SELECT SUM (economy_seats) FROM Airlines;
+
+SELECT SUM(economy_seats_taken+business_seats_taken+firstclass_seats_taken) as seats_taken FROM FLIGHTAVAILABILITY;
+
+
+
+
+
+
+
+
+

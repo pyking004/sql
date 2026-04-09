@@ -1,0 +1,232 @@
+				OPERATORS
+				=========	
+1. Arithmetic Operators
+2. Concatenation operators
+3. Logical Operators
+4. Hierarchical Operators
+5. Multiset Operators
+6. User-defined Operators
+
+Arithimetic Operators
+=====================
+	/	*	+	-
+
+c:=a+b;
+
+Note: Oracle Follows BODMAS Rules.
+
+B=> Brackets first (parentheses)
+
+O=> of (orders i.e., Powers and Square Roots,Cube Roots, etc...)
+
+DM=> Division and Multiplication (Start from left to right)
+
+AS=> Addition and Subtraction (Start from left to right)
+
+
+(6+2)*5=(8)*5=>40
+
+6+2*5=>6+10=>16
+
+3of4+5=>3**4+5=>81+5=86
+
+Examples:
+=========
+select 10/2 from dual;
+select 10*8/2 from dual;
+select empno,ename,job,sal,sal*0.15 as tax,deptno from emp;
+select empno,ename,job,sal,hiredate,(sysdate-hiredate)/365 as exp,deptno from emp;
+select empno,ename,job,sal,hiredate,round((sysdate-hiredate)/365,2) as exp,deptno from emp;
+
+DUAL:
+=====
+*it is a system defined table which stores temparary results and it clears every time
+*It is having only one column that is dummy and contains  one record.
+
+sql>select * from dual;
+    X
+
+sql>desc dual;
+Name		type
+===========================
+DUMMY		VARCHAR2(1)
+
+
+2.Concatenation Operators(||):
+==============================
+
+It will execute on any two string operands to join them into a single string.
+
+
+Example: 'a'||'b' ==> ab
+
+select 'Hello '||'Oracle World' from dual;
+select sal from emp;
+select '$'||sal from emp;
+select ename,job,deptno from emp;
+select ename||' is working as '||job||' in department '||deptno from emp;
+
+Compararison Operators:
+=======================
+These operators are used to build a comparable condition between two terms and returning a logical result as "TRUE", "FALSE" or "NULL"
+
+
+<,<=,>,>=,=,!=,<>, any(some) , all, in , not in, like, not like ,between , not between
+
+exists , is null , is not null
+
+Example: if (a>b) then
+
+select * from emp where sal<1500;
+select * from emp where sal<=1500;
+select * from emp where sal>1500;
+select * from emp where sal>=1500;
+select * from emp where sal=1500;
+select * from emp where sal!=1500;
+select * from emp where sal<>1500;
+select * from emp where deptno=20;
+select * from emp where job='MANAGER';
+select * from emp where deptno!=20;
+select * from emp where deptno=(10,20);
+select * from emp where deptno=any(10,20);
+select * from emp where deptno=all(10,20);
+select * from emp where deptno=10 and job='MANAGER';
+select * from emp where deptno=10 or job='MANAGER';
+select * from emp where deptno=10 and job='MANAGER' or sal>=1500;
+select * from emp where deptno=10 or deptno=20;
+select * from emp where deptno in(10,20);
+select * from emp where job in('MANAGER','CLERK');
+select * from emp where deptno=ANY(10,20);
+select * from emp where job not in('MANAGER','CLERK');
+
+
+syntax of "BETWEEN"
+===================
+between <exp1> and <exp2>
+
+Note:
+=====
+* exp1 and exp2 are included values.
+* exp1 should be less than exp2.
+
+select * from emp where sal between 1500 and 3000;
+select * from emp where sal between 3000 and 1500;
+select * from emp where sal not between 1500 and 3000;
+
+
+LIKE(%,_):It comes with two wild card characters.
+=================================================
+%  ==>  It matches  any number of characters or no characters
+
+_ ==>  It matches only one character for one "Under score" that may be any character and mandatory.
+
+Example:
+========
+select * from emp where ename like('S%');
+select * from emp where ename like('%S');
+select * from emp where ename like('%S%');
+select * from emp where ename like('_I%');
+select * from emp where ename like('_____');
+
+select * from emp where ename like('_I%G');
+select * from emp where ename like('_I%R');
+
+
+drop table student purge;
+
+create table student
+(
+sid number(4),
+sname varchar2(15),
+course varchar2(15)
+);
+
+insert into student values(101,'scott','oracle');
+insert into student values(102,'smith%junior','oracle');
+insert into student values(103,'king_pr','java');
+insert into student values(104,'miller','oracle');
+insert into student values(105,'mike','oracle');
+insert into student values(106,'smith#junior','java');
+commit;
+
+
+select * from student where sname like('%/%%') escape '/';
+select * from student where sname like('%/_%') escape '/';
+
+select * from student where sname not like('%/%%') escape '/';
+select * from student where sname not like('%/_%') escape '/';
+
+
+Exists:
+=======
+select * from emp;
+select * from dept;
+
+select distinct deptno from emp where exists(select * from dept where dept.deptno=emp.deptno);
+
+select distinct deptno from dept where not exists(select * from emp where dept.deptno=emp.deptno);
+
+
+select * from customers where exists
+(select * from order_details where customers.customer_id=order_details.customer_id);
+
+
+LOGICAL OPERATORS:
+==================
+	AND , OR , NOT
+
+if (a<b) and (a!=0) then
+
+select * from emp where job='MANAGER' AND deptno=30;
+
+select * from emp where job='MANAGER' or deptno=30;
+
+
+Hierarchical Operators:
+=======================
+we use these operators only in hierarchical queries.
+
+	PRIOR,	CONNECT BY ROOT
+
+Syntax:
+	select ......
+	start with
+	connect by prior...........
+
+Multiset operator:
+==================
+MULTISET , MULTISET EXCEPT, MULTISET INTERSECT, MULTISET UNION
+
+
+USER DEFINED OPERATORS:
+=======================
+1. These are created by user.
+2. They take a set of operands and return a result.
+3. They can be used using CREATE OPERATOR command.
+
+User Defined Operator Syntax:
+=============================
+create or replace operator [operator_name]
+BINDING (data_type_in) RETURN [data_type_out] USING [function_name];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
