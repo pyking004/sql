@@ -1,0 +1,221 @@
+SUB-QUERIES:
+============
+Writing a query with in another query at where clause is know as sub-query.
+
+Syntax:
+=======
+select statement where <exp>=(select statement);
+         |			     	|
+       O.S.S   		        I . S . S
+
+
+select statement where <exp>=(select statement where <exp>=(select statement));
+         |			     |				   |
+       O.S.S   		        I . S . S		Most inner select statement
+			
+
+Executional Behaviour:
+======================
+*First inner select statement will execute then based on the I.S.S value outer select statement will execute.
+
+select statement where(select statement where(select statement where(select statement where(select statement))));
+
+Note:
+=====
+we can write upto 32 sub-queries with in a select statement.
+
+Types of sub-queries:
+=====================
+1. single row sub-query:
+========================
+* If your I.S.S result is single row or single value is known as single row sub-query.
+
+select statement where (select statement);
+				|
+			     ONE VALUE
+
+select * from emp;
+EMPNO , ENAME , JOB, MGR, HIREDATE, SAL , COMM, DEPTNO
+select * from dept;
+DEPTNO , DNAME , LOC
+select * from salgrade;
+GRADE LOSAL  HISAL
+
+USING-JOIN:
+===========
+Query: 	Display employees information from emp table who are working in 'SALES' department.
+
+SELECT EMP.* FROM EMP,DEPT WHERE EMP.DEPTNO=DEPT.DEPTNO AND DEPT.DNAME='SALES';
+
+emp(14)Xdept(4)=>56 rows=>emp.deptno=dept.deptno => 14 records=>dname='SALES' => 6 ROWS=>1SEC
+
+SELECT * FROM EMP WHERE HIREDATE<(SELECT HIREDATE FROM EMP WHERE ENAME='WARD');
+
+SUB-QUERY:
+==========
+SELECT DEPTNO FROM DEPT WHERE DNAME='SALES';
+30
+SELECT * FROM EMP WHERE DEPTNO=30;
+
+SELECT * FROM EMP WHERE DEPTNO=(SELECT DEPTNO FROM DEPT WHERE DNAME='SALES');
+
+SELECT MAX(SAL) FROM EMP;
+5000
+SELECT * FROM EMP WHERE SAL=5000;
+
+SELECT * FROM EMP WHERE SAL=(SELECT MAX(SAL) FROM EMP);
+
+
+To get maximum salary employee information:
+===========================================
+
+SELECT * FROM EMP WHERE SAL=(SELECT MAX(SAL) FROM EMP);
+
+SELECT * FROM EMP WHERE SAL=(SELECT MIN(SAL) FROM EMP);
+
+SELECT * FROM EMP WHERE SAL>(SELECT AVG(SAL) FROM EMP);
+
+SELECT * FROM EMP WHERE SAL<(SELECT AVG(SAL) FROM EMP);
+
+select * from emp where hiredate=(select min(hiredate) from emp);
+
+select * from emp where hiredate=(select max(hiredate) from emp);
+
+select * from emp where mgr=(select empno from emp where ename='KING');
+
+SELECT * FROM EMP WHERE SAL>(select sal from emp where ename='BLAKE');
+
+
+select * from emp where sal=(select max(sal) from emp where deptno=(select deptno from dept where LOC='CHICAGO'))
+
+
+Multiple row sub-query:
+=======================
+if inner select statement result is more than single value that is known as multiple row sub-query.
+
+select * from emp where sal in(select max(sal) from emp group by deptno);
+
+select * from emp where sal in(select max(sal) from emp group by deptno) order by deptno;
+
+select * from emp where sal in(select max(sal) from emp group by job) order by deptno,job;
+
+select * from emp where sal in(select min(sal) from emp group by deptno);
+
+
+Display employess information which department contains more than 3 employees:
+==============================================================================
+select deptno from emp group by deptno having count(*)>3;
+
+select * from emp where deptno in(select deptno from emp group by deptno having count(*)>3) order by deptno;
+
+select * from emp where deptno in(select deptno from emp group by deptno having count(*)=3) order by deptno;
+
+
+Display employees information who are getting maximum salary:
+=============================================================
+select * from emp where sal=(select max(sal) from emp);
+
+Display employees information who are getting second maximum salary:
+====================================================================
+
+
+Second max:
+===========
+5000
+3000
+2850
+2500
+2000
+
+
+
+select * from emp where sal=
+(select max(sal) from emp where sal<(select max(sal) from emp));
+
+Third max
+=========
+select * from emp where sal=(
+select max(sal) from emp where sal<(
+select max(sal) from emp where sal<(
+select max(sal) from emp)));
+
+Fourth max
+==========
+select * from emp where sal=(
+select max(sal) from emp where sal<(
+select max(sal) from emp where sal<(
+select max(sal) from emp where sal<(
+select max(sal) from emp))));
+
+35th max salary
+===============
+
+
+Note:
+-----
+Finding top analysis sub-query is not at all preferrable co-related sub-query is preferrable.
+
+co-related sub-query:
+=====================
+select * from emp e where 3=(select count(distinct(sal)) from emp where e.sal<=sal);
+
+select * from emp e where 4=(select count(distinct(sal)) from emp where e.sal<=sal);
+
+select * from emp e where 2=(select count(distinct(sal)) from emp where e.sal<=sal and e.deptno=deptno);
+
+
+Executional behaviour of co-related sub-query:
+==============================================
+first outer will execute then based on outer query value inner query will execute.
+
+
+select * from emp e where 3=(select count(distinct(sal)) from emp where e.sal<=sal);
+
+  	e	  			emp
+========================		================
+empno,ename,..,..,e.sal			sal
+========================		================
+		  800			800
+ 		  1600			1600
+ 		  1250			1250
+ 		  2975			2975
+ 		  1250			2850		
+ 		  2850			2450
+ 		  2450			3000
+ 		  3000			5000
+ 		  5000			1500
+ 		  1500			1100
+ 		  1100			950
+ 		  950
+  		  3000
+ 		  1300
+
+
+some examples
+=============
+update emp1 set hiredate=(select hiredate from emp where emp.empno=emp1.empno);
+
+update emp1 set hiredate=(select hiredate from emp where emp.empno=emp1.empno) where ename='SCOTT';
+
+
+select * from emp e where 2=(select count(distinct(sal)) from emp where e.sal<=sal and e.deptno=emp.deptno) order by deptno;
+
+
+SELF JOIN
+=========
+select * from emp where sal>(select sal from emp where ename='BLAKE');
+
+select * from emp where HIREDATE<(select HIREDATE from emp where ename='BLAKE');
+
+select * from emp where hiredate=(select min(hiredate) from emp);
+
+select * from emp where sal>(select avg(sal) from emp);
+
+
+
+
+
+
+
+
+
